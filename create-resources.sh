@@ -1,0 +1,1 @@
+echo "All resources initialized! 🚀"

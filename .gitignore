@@ -1,0 +1,5 @@
+README.md
+local-aws/.terraform.lock.hcl
+local-aws/terraform.tfstate.backup
+local-aws/.terraform.tfstate.lock.info
+local-aws/.terraform
