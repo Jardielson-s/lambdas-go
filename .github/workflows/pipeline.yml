@@ -22,7 +22,7 @@ jobs:
       - name: Display Go version
         run: go version
       - name: Install dependencies
-        run: go get .
+        run: echo "here install dependencies"
   deploy-to-dev:
     name: Deploy develop
     runs-on: ubuntu-latest
