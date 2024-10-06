@@ -3,3 +3,6 @@ local-aws/.terraform.lock.hcl
 local-aws/terraform.tfstate.backup
 local-aws/.terraform.tfstate.lock.info
 local-aws/.terraform
+local-aws/bootstrap
+local-aws/process_csv
+local-aws/terraform.tfstate

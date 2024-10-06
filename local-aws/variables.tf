@@ -13,5 +13,5 @@ variable "lambdas" {
 
   type = set(string)
 
-  default = ["get_csv", "process_csv"]
+  default = ["process_csv"]
 }

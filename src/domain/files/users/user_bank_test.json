@@ -1,0 +1,21 @@
+[
+    {
+        "name": "Test",
+        "email": "test@email.com",
+        "password": "password",
+        "timestamps": {
+            "createdAt": "2024-10-02 13:15:36",
+            "updatedAt": "2024-10-02 13:15:36"
+        },
+        "account": [
+            {
+                "account": "5498 4795 5754 8991",
+                "balance": 2000000,
+                "timestamps": {
+                    "createdAt": "2024-10-02 13:15:36",
+                    "updatedAt": "2024-10-02 13:15:36"
+                }
+            }
+        ]
+    }
+]

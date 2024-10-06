@@ -1,15 +1,18 @@
 package services
 
 import (
-	"time"
+	"log"
+
+	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config"
+	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config/types"
 )
 
-type CreateResponse struct {
-	OK    bool   `json:"ok"`
-	ID    int64  `json:"id"`
-	ReqID string `json:"req_id"`
-}
-
-func Process_csv_service() (CreateResponse, error) {
-	return CreateResponse{OK: true, ID: time.Now().UnixNano(), ReqID: "process csv"}, nil
+func ProcessCsvService(input types.GetFileInput) {
+	log.Println("Process_csv_service - processing: ", input)
+	rows, err := s3_config.GetRows(input, s3_config.GetFile, s3_config.GetHeaders)
+	if err != nil {
+		log.Println("Process_csv_service - processed error:", err)
+	} else {
+		log.Println("Process_csv_service - processed:", string(rows))
+	}
 }

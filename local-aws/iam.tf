@@ -34,7 +34,14 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Action   = "lambda:*",
         Effect   = "Allow"
         Resource = "*"
-      }
+      },
+      {
+        Action = [
+          "s3:GetObject"
+        ],
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::${var.bucket_name}-${var.env}/*"
+      },
     ]
   })
 }
