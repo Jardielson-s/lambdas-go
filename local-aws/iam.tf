@@ -42,6 +42,14 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Effect   = "Allow"
         Resource = "arn:aws:s3:::${var.bucket_name}-${var.env}/*"
       },
+      {
+        Action = [
+          "sqs:SendMessage",
+          "sqs:GetQueueUrl"
+        ],
+        Effect   = "Allow"
+        Resource = "arn:aws:sqs:::${var.queue_name}-${var.env}/*"
+      },
     ]
   })
 }

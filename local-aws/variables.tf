@@ -3,6 +3,11 @@ variable "bucket_name" {
   description = "Here is bucket name"
 }
 
+variable "queue_name" {
+  type        = string
+  description = "Here is queue name"
+}
+
 variable "env" {
   type        = string
   description = "Here is env"

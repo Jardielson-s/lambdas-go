@@ -5,6 +5,7 @@ import (
 
 	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config"
 	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config/types"
+	sqsconfig "github.com/Jardielson-s/lambdas-go/src/infra/sqs_config"
 )
 
 func ProcessCsvService(input types.GetFileInput) {
@@ -12,7 +13,11 @@ func ProcessCsvService(input types.GetFileInput) {
 	rows, err := s3_config.GetRows(input, s3_config.GetFile, s3_config.GetHeaders)
 	if err != nil {
 		log.Println("Process_csv_service - processed error:", err)
-	} else {
-		log.Println("Process_csv_service - processed:", string(rows))
 	}
+	log.Println("Process_csv_service - processed:", string(rows))
+	log.Println("Sending rows to sqs")
+	queueUrl, err := sqsconfig.GetQueue()
+	log.Println("Queue: ", err)
+	sqsconfig.SendMessage(queueUrl, string(rows))
+	log.Println("Sended rows to Sqs")
 }

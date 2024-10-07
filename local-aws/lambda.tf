@@ -46,6 +46,11 @@ resource "aws_lambda_function" "terraform_lambda_func" {
   handler          = each.key
   source_code_hash = base64sha256(data.archive_file.lambda_zip[each.key].source_file)
   runtime          = "provided.al2"
-  timeout          = 20
-  depends_on       = [aws_cloudwatch_log_group.lambda_log_group]
+  timeout          = 300
+  depends_on       = [aws_cloudwatch_log_group.lambda_log_group, aws_sqs_queue.aws_queue]
+  environment {
+    variables = {
+      ENV = var.env
+    }
+  }
 }
