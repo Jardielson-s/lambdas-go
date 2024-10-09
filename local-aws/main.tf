@@ -12,7 +12,6 @@ provider "aws" {
   region = "us-east-1"
   # access_key                  = "teste"
   # secret_key                  = "teste"
-  # region                      = "us-east-1"
   # s3_use_path_style           = true
   # skip_credentials_validation = true
   # skip_requesting_account_id  = true

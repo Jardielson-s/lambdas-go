@@ -17,7 +17,10 @@ func ProcessCsvService(input types.GetFileInput) {
 	log.Println("Process_csv_service - processed:", string(rows))
 	log.Println("Sending rows to sqs")
 	queueUrl, err := sqsconfig.GetQueue()
-	log.Println("Queue: ", err)
+	if err != nil {
+		log.Println("Sended Queue Error: ", err)
+		return
+	}
 	sqsconfig.SendMessage(queueUrl, string(rows))
 	log.Println("Sended rows to Sqs")
 }

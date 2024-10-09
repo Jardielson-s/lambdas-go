@@ -1,3 +1,9 @@
+data "aws_caller_identity" "aws_identity" {
+
+}
+locals {
+  aws_account_id = data.aws_caller_identity.aws_identity.account_id
+}
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_execution_role"
   assume_role_policy = jsonencode({
@@ -48,7 +54,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "sqs:GetQueueUrl"
         ],
         Effect   = "Allow"
-        Resource = "arn:aws:sqs:::${var.queue_name}-${var.env}/*"
+        Resource = "arn:aws:sqs:${var.region}:${local.aws_account_id}:${var.queue_name}-${var.env}"
       },
     ]
   })
