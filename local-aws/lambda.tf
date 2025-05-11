@@ -16,7 +16,7 @@ resource "null_resource" "function_binary" {
     command = <<EOT
       mkdir ${each.key}
       cd ${each.key}
-      GOOS=linux CGO_ENABLED=0 go build -ldflags '-s -w' -o bootstrap ../src/infra/functions/${each.key}/${each.key}.go
+      GOOS=linux CGO_ENABLED=0 go build -ldflags '-s -w' -o bootstrap ../../src/infra/functions/${each.key}/${each.key}.go
       cd ..
     EOT
     //"mkdir ${each.key} &&  GOOS=linux CGO_ENABLED=0 go build -ldflags '-s -w' -o bootstrap ../src/infra/functions/${each.key}/${each.key}.go && cd .."
