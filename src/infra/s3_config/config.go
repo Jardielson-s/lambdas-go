@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Jardielson-s/lambdas-go/src/domain/structs/users"
 	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -29,19 +30,26 @@ func GetFile(input types.GetFileInput) *s3.GetObjectOutput {
 	rawObject, err := s3Session.GetObject(&s3.GetObjectInput{Bucket: aws.String(input.Bucket), Key: aws.String(input.Key)})
 	if err != nil {
 		log.Println("Error to get file")
+		log.Println(err)
 	}
 	log.Println("File data: ", rawObject)
 
 	return rawObject
 }
 
-func GetHeaders(records [][]string) (response []byte, err any) {
-	headers := records[0]
+func GetHeaders(records [][]string, entity string) (response []byte, err any) {
 	var data []map[string]any
-	for _, record := range records[1:] {
+	var columnNames []string
+
+	switch entity {
+	case "users":
+		columnNames = users.UserColumnsValues
+	}
+
+	for _, record := range records {
 		row := make(map[string]any)
 		for i, value := range record {
-			row[string(headers[i])] = value
+			row[string(columnNames[i])] = value
 		}
 		data = append(data, row)
 	}
@@ -53,19 +61,13 @@ func GetHeaders(records [][]string) (response []byte, err any) {
 	return jsonData, nil
 }
 
-func GetRows(input types.GetFileInput, getFile types.GetFile, getHeaders types.GetHeaders) (response []byte, err any) {
+func GetRows(input types.GetFileInput, getFile types.GetFile, getHeaders types.GetHeaders, entity string) (response []byte, err any) {
 	rowObject := getFile(input)
 	data, err := csv.NewReader(rowObject.Body).ReadAll()
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Processing data:", data)
-	rows, err := getHeaders(data)
+	rows, err := getHeaders(data, entity)
 	return rows, err
 }
-
-// func main() {
-// 	// Init()
-// 	// getFile()
-// 	getRows(getFile, getHeaders)
-// }

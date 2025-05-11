@@ -6,3 +6,4 @@ local-aws/.terraform
 local-aws/bootstrap
 local-aws/process_csv
 local-aws/terraform.tfstate
+.env
