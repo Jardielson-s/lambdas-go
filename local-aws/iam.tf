@@ -51,7 +51,11 @@ resource "aws_iam_role_policy" "lambda_policy" {
       {
         Action = [
           "sqs:SendMessage",
-          "sqs:GetQueueUrl"
+          "sqs:GetQueueUrl",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility"
         ],
         Effect   = "Allow"
         Resource = "arn:aws:sqs:${var.region}:${local.aws_account_id}:${var.queue_name}-${var.env}"
