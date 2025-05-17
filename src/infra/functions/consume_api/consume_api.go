@@ -10,36 +10,49 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Jardielson-s/lambdas-go/src/domain/structs/users"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 type SQSMessage struct {
-	Data []users.User `json:"data"`
+	Entity string `json:"entity"`
+	Data   string `json:"data"`
+}
+
+type SendRequest struct {
+	Data []string `json:"data"`
+}
+
+type APIRequest struct {
+	Data []map[string]interface{} `json:"data"`
 }
 
 func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
 	url := os.Getenv("TRANSFER_X_API")
 
 	log.Println("handler - processing: ", sqsvent)
-	log.Println("Event:", sqsvent.Records)
 	for _, record := range sqsvent.Records {
 		body := record.Body
 		fmt.Printf(`Body: %s`, body)
 		var sqsMessage SQSMessage
+		var data []map[string]interface{}
 		err := json.Unmarshal([]byte(record.Body), &sqsMessage)
+
 		if err != nil {
 			log.Printf("Failed to unmarshal SQS message body: %v", err)
 			return nil, err
 		}
-		requestBody, err := json.Marshal(sqsMessage.Data)
-		if err != nil {
-			log.Printf("Failed to marshal request body: %v", err)
-			return nil, err
+		json.Unmarshal([]byte(sqsMessage.Data), &data)
+
+		request := APIRequest{
+			Data: data,
 		}
 
-		send_api_request(url, requestBody, "POST")
+		fmt.Println("Enitity: ", data)
+		fmt.Println(url)
+
+		payload, _ := json.Marshal(request)
+		send_api_request(url+sqsMessage.Entity+"/upsert", payload, "POST")
 
 	}
 	log.Println("handler - processed")
@@ -73,5 +86,5 @@ func send_api_request(url string, data []byte, verb string) {
 		fmt.Println(error.Error())
 		return
 	}
-	fmt.Println(res.Status, "Response Body: ", string(body))
+	fmt.Println("Response Body: ", string(body))
 }

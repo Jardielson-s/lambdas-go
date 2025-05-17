@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 
@@ -8,6 +9,11 @@ import (
 	"github.com/Jardielson-s/lambdas-go/src/infra/s3_config/types"
 	sqsconfig "github.com/Jardielson-s/lambdas-go/src/infra/sqs_config"
 )
+
+type MessageBody struct {
+	Entity string `json:"entity"`
+	Data   string `json:"data"`
+}
 
 func ProcessCsvService(input types.GetFileInput) (response string, err any) {
 	log.Println("Process_csv_service - processing: ", input)
@@ -27,7 +33,12 @@ func ProcessCsvService(input types.GetFileInput) (response string, err any) {
 		log.Println("Sended Queue Error: ", err)
 		return "", err
 	}
-	sqsconfig.SendMessage(queueUrl, string(rows))
+	message := MessageBody{
+		Entity: entity,
+		Data:   string(rows),
+	}
+	body, err := json.Marshal(message)
+	sqsconfig.SendMessage(queueUrl, string(body))
 	log.Println("Sended rows to Sqs")
 	return "Sended rows to Sqs", nil
 }
