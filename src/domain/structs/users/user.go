@@ -5,7 +5,7 @@ type UserColumns []string
 var UserColumnsValues = UserColumns{
 	"id", "name", "email", "password", "ein", "phone", "postalCode",
 	"address", "addressNumber", "complement", "city", "country",
-	"external_id", "created_at", "updated_at",
+	"external_id", "created_at", "updated_at", "integration_id",
 }
 
 type User struct {
