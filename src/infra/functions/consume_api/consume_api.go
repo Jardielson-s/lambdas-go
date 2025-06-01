@@ -15,8 +15,9 @@ import (
 )
 
 type SQSMessage struct {
-	Entity string `json:"entity"`
-	Data   string `json:"data"`
+	Entity  string `json:"entity"`
+	Data    string `json:"data"`
+	Service string `json:"service"`
 }
 
 type SendRequest struct {
@@ -28,14 +29,13 @@ type APIRequest struct {
 }
 
 func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
-	url := os.Getenv("TRANSFER_X_API")
-
 	log.Println("handler - processing: ", sqsvent)
 	for _, record := range sqsvent.Records {
 		body := record.Body
 		fmt.Printf(`Body: %s`, body)
 		var sqsMessage SQSMessage
 		var data []map[string]interface{}
+		var service string
 		err := json.Unmarshal([]byte(record.Body), &sqsMessage)
 
 		if err != nil {
@@ -43,16 +43,24 @@ func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
 			return nil, err
 		}
 		json.Unmarshal([]byte(sqsMessage.Data), &data)
+		json.Unmarshal([]byte(sqsMessage.Service), &service)
 
 		request := APIRequest{
 			Data: data,
 		}
-
+		fmt.Println("Service: ", service)
 		fmt.Println("Enitity: ", data)
+		var url string
+		if service == "user-ms" {
+			url = os.Getenv("USER_MS_API") + "/users"
+		} else {
+			url = os.Getenv("TRANSFER_X_API") + "/upsert"
+		}
+
 		fmt.Println(url)
 
 		payload, _ := json.Marshal(request)
-		send_api_request(url+sqsMessage.Entity+"/upsert", payload, "POST")
+		send_api_request(url+sqsMessage.Entity, payload, "POST")
 
 	}
 	log.Println("handler - processed")
