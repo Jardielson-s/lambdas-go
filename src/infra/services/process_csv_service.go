@@ -11,8 +11,10 @@ import (
 )
 
 type MessageBody struct {
-	Entity string `json:"entity"`
-	Data   string `json:"data"`
+	Entity    string `json:"entity"`
+	Data      string `json:"data"`
+	Service   string `json:"service"`
+	Operation string `json:"operation"`
 }
 
 func ProcessCsvService(input types.GetFileInput) (response string, err any) {
@@ -21,7 +23,7 @@ func ProcessCsvService(input types.GetFileInput) (response string, err any) {
 
 	var entity string = pathEntity[2]
 	log.Println("Entity: ", entity)
-	rows, err := s3_config.GetRows(input, s3_config.GetFile, s3_config.GetHeaders, entity)
+	rows, operation, err := s3_config.GetRows(input, s3_config.GetFile, s3_config.GetHeaders, entity)
 	if err != nil {
 		log.Println("Process_csv_service - processed error:", err)
 		return "", err
@@ -34,8 +36,10 @@ func ProcessCsvService(input types.GetFileInput) (response string, err any) {
 		return "", err
 	}
 	message := MessageBody{
-		Entity: entity,
-		Data:   string(rows),
+		Entity:    entity,
+		Data:      string(rows),
+		Service:   "transfer-x",
+		Operation: operation,
 	}
 	body, err := json.Marshal(message)
 	sqsconfig.SendMessage(queueUrl, string(body))

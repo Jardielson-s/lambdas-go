@@ -37,7 +37,7 @@ func GetFile(input types.GetFileInput) *s3.GetObjectOutput {
 	return rawObject
 }
 
-func GetHeaders(records [][]string, entity string) (response []byte, err any) {
+func GetHeaders(records [][]string, entity string) (response []byte, operation string, err any) {
 	var data []map[string]any
 	var columnNames []string
 
@@ -45,29 +45,37 @@ func GetHeaders(records [][]string, entity string) (response []byte, err any) {
 	case "users":
 		columnNames = users.UserColumnsValues
 	}
-
+	var opr string
 	for _, record := range records {
 		row := make(map[string]any)
+		if len(record) > 0 && (record[0] == "U" || record[0] == "I" || record[0] == "D") {
+			opr = record[0]
+			record = record[1:]
+		}
 		for i, value := range record {
 			row[string(columnNames[i])] = value
 		}
-		data = append(data, row)
+		if opr == "I" || opr == "U" {
+			if !(row["integration_id"] != nil && opr == "I") {
+				data = append(data, row)
+			}
+		}
 	}
 
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return jsonData, nil
+	return jsonData, opr, nil
 }
 
-func GetRows(input types.GetFileInput, getFile types.GetFile, getHeaders types.GetHeaders, entity string) (response []byte, err any) {
+func GetRows(input types.GetFileInput, getFile types.GetFile, getHeaders types.GetHeaders, entity string) (response []byte, operation string, err any) {
 	rowObject := getFile(input)
 	data, err := csv.NewReader(rowObject.Body).ReadAll()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	log.Println("Processing data:", data)
-	rows, err := getHeaders(data, entity)
-	return rows, err
+	rows, operation, err := getHeaders(data, entity)
+	return rows, operation, err
 }

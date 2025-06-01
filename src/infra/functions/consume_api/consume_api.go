@@ -15,9 +15,10 @@ import (
 )
 
 type SQSMessage struct {
-	Entity  string `json:"entity"`
-	Data    string `json:"data"`
-	Service string `json:"service"`
+	Entity    string `json:"entity"`
+	Data      string `json:"data"`
+	Service   string `json:"service"`
+	Operation string `json:"operation"`
 }
 
 type SendRequest struct {
@@ -49,16 +50,23 @@ func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
 		fmt.Println("Service: ", sqsMessage.Service)
 		fmt.Println("Enitity: ", data)
 		var url string
+		var verb string
 		if sqsMessage.Service == "user-ms" {
 			url = os.Getenv("TRANSFER_X_API") + sqsMessage.Entity + "/upsert"
 		} else {
 			url = os.Getenv("USER_MS_API") + sqsMessage.Entity
 		}
 
+		if sqsMessage.Operation == "I" {
+			verb = "POST"
+		} else {
+			verb = "PATCH"
+		}
+
 		fmt.Println(url)
 
 		payload, _ := json.Marshal(request)
-		send_api_request(url, payload, "POST")
+		send_api_request(url, payload, verb)
 
 	}
 	log.Println("handler - processed")

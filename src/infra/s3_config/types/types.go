@@ -7,4 +7,4 @@ type GetFileInput struct {
 	Key    string
 }
 type GetFile func(input GetFileInput) *s3.GetObjectOutput
-type GetHeaders func(records [][]string, entity string) (response []byte, err any)
+type GetHeaders func(records [][]string, entity string) (response []byte, operation string, err any)
