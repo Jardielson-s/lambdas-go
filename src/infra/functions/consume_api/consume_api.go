@@ -52,7 +52,7 @@ func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
 		if sqsMessage.Service == "user-ms" {
 			url = os.Getenv("TRANSFER_X_API") + sqsMessage.Entity + "/upsert"
 		} else {
-			url = os.Getenv("USER_MS_API") + sqsMessage.Entity + "/users"
+			url = os.Getenv("USER_MS_API") + sqsMessage.Entity
 		}
 
 		fmt.Println(url)
