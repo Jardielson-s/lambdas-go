@@ -53,13 +53,14 @@ func handler(_ context.Context, sqsvent events.SQSEvent) (any, error) {
 		var verb string
 		if sqsMessage.Service == "user-ms" {
 			url = os.Getenv("TRANSFER_X_API") + sqsMessage.Entity + "/upsert"
+			if sqsMessage.Operation == "I" {
+				verb = "POST"
+			} else {
+				url = os.Getenv("TRANSFER_X_API") + sqsMessage.Entity
+				verb = "PATCH"
+			}
 		} else {
 			url = os.Getenv("USER_MS_API") + sqsMessage.Entity
-		}
-
-		if sqsMessage.Operation == "I" {
-			verb = "POST"
-		} else {
 			verb = "PATCH"
 		}
 

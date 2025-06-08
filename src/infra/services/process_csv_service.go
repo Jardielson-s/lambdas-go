@@ -28,21 +28,24 @@ func ProcessCsvService(input types.GetFileInput) (response string, err any) {
 		log.Println("Process_csv_service - processed error:", err)
 		return "", err
 	}
-	// log.Println("Process_csv_service - processed:", string(rows))
-	log.Println("Sending rows to sqs")
-	queueUrl, err := sqsconfig.GetQueue()
-	if err != nil {
-		log.Println("Sended Queue Error: ", err)
-		return "", err
+	if len(rows) > 0 {
+		// log.Println("Process_csv_service - processed:", string(rows))
+		log.Println("Sending rows to sqs")
+		queueUrl, err := sqsconfig.GetQueue()
+		if err != nil {
+			log.Println("Sended Queue Error: ", err)
+			return "", err
+		}
+		message := MessageBody{
+			Entity:    entity,
+			Data:      string(rows),
+			Service:   "transfer-x",
+			Operation: operation,
+		}
+		body, err := json.Marshal(message)
+		sqsconfig.SendMessage(queueUrl, string(body))
+		log.Println("Sended rows to Sqs")
 	}
-	message := MessageBody{
-		Entity:    entity,
-		Data:      string(rows),
-		Service:   "transfer-x",
-		Operation: operation,
-	}
-	body, err := json.Marshal(message)
-	sqsconfig.SendMessage(queueUrl, string(body))
-	log.Println("Sended rows to Sqs")
 	return "Sended rows to Sqs", nil
+
 }

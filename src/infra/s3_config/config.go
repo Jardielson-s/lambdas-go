@@ -3,6 +3,7 @@ package s3_config
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -37,27 +38,64 @@ func GetFile(input types.GetFileInput) *s3.GetObjectOutput {
 	return rawObject
 }
 
+func transformUserRow(row map[string]any) map[string]any {
+	transformed := make(map[string]any)
+	if row["integration_id"] != "" {
+		transformed["_id"] = row["integration_id"]
+	}
+	if row["external_application"] != "" {
+		transformed["externalApplication"] = row["external_application"]
+	}
+	transformed["externalId"] = row["id"]
+	transformed["name"] = row["name"]
+	transformed["ein"] = row["ein"]
+	transformed["age"] = 18
+	transformed["email"] = row["email"]
+	transformed["password"] = row["password"]
+	address := map[string]any{
+		"street":        row["address"],
+		"addressNumber": row["addressNumber"],
+	}
+	address["postalCode"] = row["postalCode"]
+	transformed["address"] = address
+	return transformed
+}
+
 func GetHeaders(records [][]string, entity string) (response []byte, operation string, err any) {
-	var data []map[string]any
 	var columnNames []string
 
 	switch entity {
 	case "users":
 		columnNames = users.UserColumnsValues
+	default:
+		return nil, "", fmt.Errorf("entidade '%s' não suportada", entity)
 	}
+
+	var data []map[string]any
 	var opr string
+
 	for _, record := range records {
+		if len(record) == 0 {
+			continue
+		}
+
 		row := make(map[string]any)
-		if len(record) > 0 && (record[0] == "U" || record[0] == "I" || record[0] == "D") {
+
+		if record[0] == "U" || record[0] == "I" || record[0] == "D" {
 			opr = record[0]
 			record = record[1:]
 		}
+
 		for i, value := range record {
-			row[string(columnNames[i])] = value
+			if i < len(columnNames) {
+				row[columnNames[i]] = value
+			}
 		}
-		if opr == "I" || opr == "U" {
-			if !(row["integration_id"] != nil && opr == "I") {
-				data = append(data, row)
+		fmt.Println("Row ", row)
+		if entity == "users" && (opr == "I" || opr == "U") {
+			if !((row["external_application"] == "true" || row["external_application"] == true) && opr == "I") {
+				transformed := transformUserRow(row)
+				data = append(data, transformed)
 			}
 		}
 	}
@@ -66,6 +104,7 @@ func GetHeaders(records [][]string, entity string) (response []byte, operation s
 	if err != nil {
 		return nil, "", err
 	}
+
 	return jsonData, opr, nil
 }
 
