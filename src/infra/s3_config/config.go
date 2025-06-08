@@ -92,7 +92,7 @@ func GetHeaders(records [][]string, entity string) (response []byte, operation s
 			}
 		}
 		fmt.Println("Row ", row)
-		if entity == "users" && (opr == "I" || opr == "U") {
+		if entity == "users" && (opr != "D") {
 			if !((row["external_application"] == "true" || row["external_application"] == true) && opr == "I") {
 				transformed := transformUserRow(row)
 				data = append(data, transformed)
